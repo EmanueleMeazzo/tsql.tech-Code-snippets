@@ -1,12 +1,18 @@
-
-
-CREATE OR ALTER PROCEDURE AlignColumnstore @SchemaName sysname = 'dbo' ,
-@TableName sysname = 'D_Option_ColumnStore',
-@AlignToColumn sysname = 'MemberID',
-@IndexToAlign sysname = '%',
-@PrintOnly bit = 1
-AS
+CREATE OR ALTER PROCEDURE [AlignColumnstore] @SchemaName    SYSNAME = 'dbo',
+                                             @TableName     SYSNAME ,
+                                             @AlignToColumn SYSNAME ,
+                                             @IndexToAlign  SYSNAME = '%',
+                                             @PrintOnly     BIT     = 1
+AS;
 BEGIN
+
+--A Stored procedure to Automatically Align a Columstore index to a specific Column
+--The ideal case is for tables with Clustered Columnstore tables that need to be aligned 
+--to a specific column to maximize Segment elimination
+--URL: http://tsql.tech/a-script-to-automatically-align-columnstore-indexes-to-enhance-segment-elimination-and-hence-performances/
+--Author: Emanuele Meazzo
+--License: MIT AKA do whatever you want
+
 ---
 DECLARE @ObjectID int
 DECLARE @Error varchar(512)
