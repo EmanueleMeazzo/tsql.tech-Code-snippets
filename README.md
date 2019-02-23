@@ -1,4 +1,4 @@
-# tsql.tech Code snippets
+# [tsql.tech](http://tsql.tech) Code snippets
 
 List of contents:
 
