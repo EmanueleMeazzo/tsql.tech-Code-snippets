@@ -1,4 +1,4 @@
-# SQL Code snippets
+# tsql.tech Code snippets
 
 List of contents:
 
