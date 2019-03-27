@@ -3,6 +3,7 @@
 List of contents:
 
 * ## DMV (Estract useful informations from DMVs)
+  - Find Active Locks
   - Find Key Lookup in Plan Cache
   - Find Long Running Queries in PlanCache
   - Find Most Expensive Queries in PlanCache
