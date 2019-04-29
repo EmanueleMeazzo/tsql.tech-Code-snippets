@@ -53,7 +53,9 @@ $files = Get-ChildItem -Path "TempFolderForThisStuff\*.sql"
 foreach ($file in $files)
 {
     $filename = $OutputPath.ToString() + "\" + (Split-Path $file -Leaf).Replace(".sql",".ipynb").ToString()
+    $Description = (Split-Path $file -Leaf).Replace(".sql","").ToString()
     $cells = @()
+    $cells += [pscustomobject]@{cell_type = "markdown"; source = "# $Description" }
 
     Invoke-DbaDiagnosticQueryScriptParser $file |
         ForEach-Object {
