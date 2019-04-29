@@ -36,9 +36,18 @@ List of contents:
   - Truncate All Transaction Log
   - VLF_Shrink
 
+* ## Notebooks
+  - Jupyter Notebook to use with SQL Server and Azure Data Studio
+
 * ## PowerBI
   - Job Information - [A report to analyze the Agent Job performance, comes with companion procedure](https://tsql.tech/a-powerbi-report-for-sql-server-agent-jobs/)
   - Permission Information - [A report to analyze the granular permissions on your SQL Server instance](https://tsql.tech/a-sql-server-permission-report-in-powerbi/)
+  
+* ## PowerShell
+  - Covert Notebook to HTML - Converts a Jupyter Notebook to HTML for easy export [Requires jupyter installed in the System]
+  - Create Diagnostic Notebooks - Automatically creates Jupyter Notebooks from the Latest Glen Berry Diagnostic Queries
+  - Export to CSV - A sample, simple, export SQL Table to CSV file using SQLServer Powershell Modules
+  - PIP upgrade all packages - A simple way to upgrade all the installed Python packages using PIP
 
 * ## QueryStore
   - Query Tuning Reccomandations
