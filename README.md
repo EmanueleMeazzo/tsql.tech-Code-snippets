@@ -59,6 +59,9 @@ List of contents:
   - Find Stored Procedure
   - Find primary key candidates
 
+* ## Session Materials
+  - How to use PowerBI as a Monitoring Tool (Slides and Report examples)
+
 * ## Troubleshooting
   - How Many Rows has a DML Operation modified until now
   - ParallelTasks of a Session
