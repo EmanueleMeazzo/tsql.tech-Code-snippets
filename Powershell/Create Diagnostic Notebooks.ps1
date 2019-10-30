@@ -86,8 +86,9 @@ function DownloadFilesFromRepo {
         )
     
         $baseUri = "https://api.github.com/"
-        $args = "repos/$Owner/$Repository/contents/$Path"
-        $wr = Invoke-WebRequest -Uri $($baseuri+$args)
+        $ar = "repos/$Owner/$Repository/contents/$Path"
+        [Net.ServicePointManager]::SecurityProtocol = "tls12, tls11, tls"
+        $wr = Invoke-WebRequest -Uri $($baseuri+$ar)
         $objects = $wr.Content | ConvertFrom-Json
         $files = $objects | Where-Object {$_.type -eq "file"} | Select-Object -exp download_url
         
