@@ -390,7 +390,15 @@ BEGIN
                [j].[enabled],
                [j].[job_id],
                [h].[message],
-               [c].[name] AS [category_name]
+               [c].[name] AS [category_name],
+	       CASE [h].[run_status]
+                WHEN 0 THEN 'Failed'
+                WHEN 1 THEN 'Succeeded'
+                WHEN 2 THEN 'Retry'
+		WHEN 3 THEN 'Cancelled'
+                WHEN 4 THEN 'In Progress'
+                ELSE 'Unknown'
+               END as [run_status]
         FROM      [msdb].[dbo].[sysjobs] [j]
                   INNER JOIN [msdb].[dbo].[sysjobsteps] [s] ON [j].[job_id] = [s].[job_id]
                   INNER JOIN [msdb].[dbo].[sysjobhistory] [h] ON [s].[job_id] = [h].[job_id]
