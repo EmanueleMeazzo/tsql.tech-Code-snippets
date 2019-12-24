@@ -1,7 +1,7 @@
 
 -- SQL Server 2019 Diagnostic Information Queries
 -- Glenn Berry 
--- Last Modified: September 4, 2019
+-- Last Modified: December 4, 2019
 -- https://www.sqlskills.com/blogs/glenn/
 -- http://sqlserverperformance.wordpress.com/
 -- Twitter: GlennAlanBerry
@@ -68,12 +68,17 @@ SELECT @@SERVERNAME AS [Server Name], @@VERSION AS [SQL Server and OS Version In
 -- 15.0.1700.37		CTP 3.1								6/26/2019
 -- 15.0.1800.32		CTP 3.2								7/24/2019
 -- 15.0.1900.25		RC1/RC1 Refresh						8/29/2019
+-- 15.0.2000.5		RTM									11/4/2019
+-- 15.0.2070.41		GDR1								11/4/2019		https://support.microsoft.com/en-us/help/4517790/servicing-update-for-sql-server-2019-rtm 
 
 		
 															
 
 -- How to determine the version, edition and update level of SQL Server and its components 
--- https://bit.ly/2oAjKgW	
+-- https://bit.ly/2oAjKgW
+
+-- SQL Server 2019 build versions
+-- https://bit.ly/2qjKwOl
 
 -- What's New in SQL Server 2019 (Database Engine)
 -- https://bit.ly/2Q29fhz
@@ -138,8 +143,8 @@ SERVERPROPERTY('InstanceDefaultDataPath') AS [InstanceDefaultDataPath],
 SERVERPROPERTY('InstanceDefaultLogPath') AS [InstanceDefaultLogPath],
 SERVERPROPERTY('BuildClrVersion') AS [Build CLR Version],
 SERVERPROPERTY('IsXTPSupported') AS [IsXTPSupported],
-SERVERPROPERTY('IsPolybaseInstalled') AS [IsPolybaseInstalled],				-- New for SQL Server 2016
-SERVERPROPERTY('IsAdvancedAnalyticsInstalled') AS [IsRServicesInstalled];	-- New for SQL Server 2016
+SERVERPROPERTY('IsPolybaseInstalled') AS [IsPolybaseInstalled],				
+SERVERPROPERTY('IsAdvancedAnalyticsInstalled') AS [IsRServicesInstalled];	
 ------
 
 -- This gives you a lot of useful information about your instance of SQL Server,
@@ -169,6 +174,7 @@ ORDER BY name OPTION (RECOMPILE);
 -- optimize for ad hoc workloads (should be 1)
 -- priority boost (should be zero)
 -- remote admin connections (should be 1)
+-- tempdb metadata memory-optimized (0 by default, some workloads may benefit by enabling)
 
 -- sys.configurations (Transact-SQL)
 -- https://bit.ly/2HsyDZI
@@ -191,14 +197,6 @@ DBCC TRACESTATUS (-1);
 -- TF 7745 - Prevents Query Store data from being written to disk in case of a failover or shutdown command
 --           https://bit.ly/2GU69Km
 
--- TF 7752 - Enables asynchronous load of Query Store. 
---           This allows a database to become online and queries to be executed before the Query Store has been fully recovered 
-
--- The behavior of TF 1117, 1118 are enabled for tempdb in SQL Server 2016 by default
--- SQL 2016 – It Just Runs Faster: -T1117 and -T1118 changes for TEMPDB and user databases
--- https://bit.ly/2lbNWxK           
-
--- The behavior of TF 2371 is enabled by default in SQL Server 2016 and newer (in compat level 130 and higher)
 
 -- DBCC TRACEON - Trace Flags (Transact-SQL)
 -- https://bit.ly/2FuSvPg
@@ -439,7 +437,8 @@ SELECT cpu_count AS [Logical CPU Count], scheduler_count,
 	   DATEDIFF(hour, sqlserver_start_time, GETDATE()) AS [SQL Server Up Time (hrs)],
 	   virtual_machine_type_desc AS [Virtual Machine Type], 
        softnuma_configuration_desc AS [Soft NUMA Configuration], 
-	   sql_memory_model_desc, container_type_desc -- New in SQL Server 2019
+	   sql_memory_model_desc, 
+	   container_type_desc -- New in SQL Server 2019
 FROM sys.dm_os_sys_info WITH (NOLOCK) OPTION (RECOMPILE);
 ------
 
@@ -742,7 +741,7 @@ db.delayed_durability_desc, db.is_auto_create_stats_incremental_on,
 db.is_query_store_on, db.is_sync_with_backup, db.is_temporal_history_retention_enabled,
 db.is_supplemental_logging_enabled, db.is_remote_data_archive_enabled,
 db.is_encrypted, de.encryption_state, de.percent_complete, de.key_algorithm, de.key_length, db.resource_pool_id,
-db.is_tempdb_spill_to_remote_store, db.is_result_set_caching_on, db.is_accelerated_database_recovery_on
+db.is_tempdb_spill_to_remote_store, db.is_result_set_caching_on, db.is_accelerated_database_recovery_on, is_stale_page_detection_on
 FROM sys.databases AS db WITH (NOLOCK)
 INNER JOIN sys.dm_os_performance_counters AS lu WITH (NOLOCK)
 ON db.name = lu.instance_name
@@ -779,19 +778,19 @@ ORDER BY db.[name] OPTION (RECOMPILE);
 
 
 -- Missing Indexes for all databases by Index Advantage  (Query 33) (Missing Indexes All Databases)
-SELECT CONVERT(decimal(18,2), user_seeks * avg_total_user_cost * (avg_user_impact * 0.01)) AS [index_advantage],
-FORMAT(migs.last_user_seek, 'yyyy-MM-dd HH:mm:ss') AS [last_user_seek], 
-mid.[statement] AS [Database.Schema.Table],
-COUNT(1) OVER(PARTITION BY mid.[statement]) AS [missing_indexes_for_table],
-COUNT(1) OVER(PARTITION BY mid.[statement], equality_columns) AS [similar_missing_indexes_for_table],
-mid.equality_columns, mid.inequality_columns, mid.included_columns,
-migs.unique_compiles, migs.user_seeks, 
-CONVERT(decimal(18,2), migs.avg_total_user_cost) AS [avg_total_user_cost], migs.avg_user_impact 
-FROM sys.dm_db_missing_index_group_stats AS migs WITH (NOLOCK)
-INNER JOIN sys.dm_db_missing_index_groups AS mig WITH (NOLOCK)
-ON migs.group_handle = mig.index_group_handle
-INNER JOIN sys.dm_db_missing_index_details AS mid WITH (NOLOCK)
-ON mig.index_handle = mid.index_handle
+SELECT CONVERT(decimal(18,2), migs.user_seeks * migs.avg_total_user_cost * (migs.avg_user_impact * 0.01)) AS [index_advantage], 
+FORMAT(migs.last_user_seek, 'yyyy-MM-dd HH:mm:ss') AS [last_user_seek], mid.[statement] AS [Database.Schema.Table], 
+COUNT(1) OVER(PARTITION BY mid.[statement]) AS [missing_indexes_for_table], 
+COUNT(1) OVER(PARTITION BY mid.[statement], mid.equality_columns) AS [similar_missing_indexes_for_table], 
+mid.equality_columns, mid.inequality_columns, mid.included_columns, migs.user_seeks, 
+CONVERT(decimal(18,2), migs.avg_total_user_cost) AS [avg_total_user_,cost], migs.avg_user_impact,
+REPLACE(REPLACE(LEFT(st.[text], 255), CHAR(10),''), CHAR(13),'') AS [Short Query Text]
+FROM sys.dm_db_missing_index_groups AS mig WITH (NOLOCK) 
+INNER JOIN sys.dm_db_missing_index_group_stats_query AS migs WITH(NOLOCK) 
+ON mig.index_group_handle = migs.group_handle 
+CROSS APPLY sys.dm_exec_sql_text(migs.last_sql_handle) AS st 
+INNER JOIN sys.dm_db_missing_index_details AS mid WITH (NOLOCK) 
+ON mig.index_handle = mid.index_handle 
 ORDER BY index_advantage DESC OPTION (RECOMPILE);
 ------
 
@@ -800,6 +799,7 @@ ORDER BY index_advantage DESC OPTION (RECOMPILE);
 -- Also look at avg_user_impact and avg_total_user_cost to help determine importance
 -- SQL Server is overly eager to add included columns, so beware
 -- Do not just blindly add indexes that show up from this query!!!
+-- Håkan Winther has given me some great suggestions for this query
 
 -- SQL Server Index Design Guide
 -- https://bit.ly/2qtZr4N
@@ -935,7 +935,7 @@ AS (SELECT wait_type, wait_time_ms/ 1000.0 AS [WaitS],
 		N'PREEMPTIVE_OS_PIPEOPS', N'PREEMPTIVE_OS_AUTHENTICATIONOPS',
 		N'PREEMPTIVE_OS_GENERICOPS', N'PREEMPTIVE_OS_VERIFYTRUST',
 		N'PREEMPTIVE_OS_FILEOPS', N'PREEMPTIVE_OS_DEVICEOPS', N'PREEMPTIVE_OS_QUERYREGISTRY',
-		N'PREEMPTIVE_OS_WRITEFILE',
+		N'PREEMPTIVE_OS_WRITEFILE', N'PREEMPTIVE_OS_WRITEFILEGATHER',
 		N'PREEMPTIVE_XE_CALLBACKEXECUTE', N'PREEMPTIVE_XE_DISPATCHER',
 		N'PREEMPTIVE_XE_GETTARGETSTATE', N'PREEMPTIVE_XE_SESSIONCOMMIT',
 		N'PREEMPTIVE_XE_TARGETINIT', N'PREEMPTIVE_XE_TARGETFINALIZE',
@@ -1099,7 +1099,7 @@ qs.min_logical_reads AS [Min Logical Reads],
 qs.total_logical_reads/qs.execution_count AS [Avg Logical Reads],
 qs.max_logical_reads AS [Max Logical Reads], 
 qs.execution_count AS [Execution Count],
-CASE WHEN CONVERT(nvarchar(max), qp.query_plan) LIKE N'%<MissingIndexes>%' THEN 1 ELSE 0 END AS [Has Missing Index], 
+CASE WHEN CONVERT(nvarchar(max), qp.query_plan) COLLATE Latin1_General_BIN2 LIKE N'%<MissingIndexes>%' THEN 1 ELSE 0 END AS [Has Missing Index],
 qs.creation_time AS [Creation Time]
 --,t.[text] AS [Query Text], qp.query_plan AS [Query Plan] -- uncomment out these columns if not copying results to Excel
 FROM sys.dm_exec_query_stats AS qs WITH (NOLOCK)
@@ -1201,7 +1201,7 @@ qs.min_elapsed_time AS [Min Elapsed Time],
 qs.total_elapsed_time/qs.execution_count AS [Avg Elapsed Time], 
 qs.max_elapsed_time AS [Max Elapsed Time],
 qs.execution_count AS [Execution Count], 
-CASE WHEN CONVERT(nvarchar(max), qp.query_plan) LIKE N'%<MissingIndexes>%' THEN 1 ELSE 0 END AS [Has Missing Index],
+CASE WHEN CONVERT(nvarchar(max), qp.query_plan) COLLATE Latin1_General_BIN2 LIKE N'%<MissingIndexes>%' THEN 1 ELSE 0 END AS [Has Missing Index],
 qs.creation_time AS [Creation Time]
 --,t.[text] AS [Complete Query Text], qp.query_plan AS [Query Plan] -- uncomment out these columns if not copying results to Excel
 FROM sys.dm_exec_query_stats AS qs WITH (NOLOCK)
@@ -1224,7 +1224,7 @@ qs.execution_count AS [Execution Count],
 qs.total_logical_reads/qs.execution_count AS [Avg Logical Reads], 
 qs.total_physical_reads/qs.execution_count AS [Avg Physical Reads], 
 qs.total_worker_time/qs.execution_count AS [Avg Worker Time],
-CASE WHEN CONVERT(nvarchar(max), qp.query_plan) LIKE N'%<MissingIndexes>%' THEN 1 ELSE 0 END AS [Has Missing Index],
+CASE WHEN CONVERT(nvarchar(max), qp.query_plan) COLLATE Latin1_General_BIN2 LIKE N'%<MissingIndexes>%' THEN 1 ELSE 0 END AS [Has Missing Index],
 qs.creation_time AS [Creation Time]
 --,t.[text] AS [Complete Query Text], qp.query_plan AS [Query Plan] -- uncomment out these columns if not copying results to Excel
 FROM sys.dm_exec_query_stats AS qs WITH (NOLOCK)
@@ -1365,7 +1365,7 @@ qs.total_worker_time AS [Total Worker Time],
 qs.total_worker_time/qs.execution_count AS [Avg Worker Time], 
 qs.total_elapsed_time AS [Total Elapsed Time],
 qs.total_elapsed_time/qs.execution_count AS [Avg Elapsed Time],
-CASE WHEN CONVERT(nvarchar(max), qp.query_plan) LIKE N'%<MissingIndexes>%' THEN 1 ELSE 0 END AS [Has Missing Index], 
+CASE WHEN CONVERT(nvarchar(max), qp.query_plan) COLLATE Latin1_General_BIN2 LIKE N'%<MissingIndexes>%' THEN 1 ELSE 0 END AS [Has Missing Index],
 qs.creation_time AS [Creation Time]
 --,t.[text] AS [Complete Query Text], qp.query_plan AS [Query Plan] -- uncomment out these columns if not copying results to Excel
 FROM sys.dm_exec_query_stats AS qs WITH (NOLOCK)
@@ -1384,7 +1384,7 @@ ISNULL(qs.execution_count/DATEDIFF(Minute, qs.cached_time, GETDATE()), 0) AS [Ca
 qs.total_elapsed_time/qs.execution_count AS [Avg Elapsed Time],
 qs.total_worker_time/qs.execution_count AS [Avg Worker Time],    
 qs.total_logical_reads/qs.execution_count AS [Avg Logical Reads],
-CASE WHEN CONVERT(nvarchar(max), qp.query_plan) LIKE N'%<MissingIndexes>%' THEN 1 ELSE 0 END AS [Has Missing Index],
+CASE WHEN CONVERT(nvarchar(max), qp.query_plan) COLLATE Latin1_General_BIN2 LIKE N'%<MissingIndexes>%' THEN 1 ELSE 0 END AS [Has Missing Index],
 FORMAT(qs.last_execution_time, 'yyyy-MM-dd HH:mm:ss', 'en-US') AS [Last Execution Time], 
 FORMAT(qs.cached_time, 'yyyy-MM-dd HH:mm:ss', 'en-US') AS [Plan Cached Time]
 -- ,qp.query_plan AS [Query Plan] -- Uncomment if you want the Query Plan
@@ -1407,7 +1407,7 @@ qs.max_elapsed_time, qs.last_elapsed_time, qs.total_elapsed_time, qs.execution_c
 ISNULL(qs.execution_count/DATEDIFF(Minute, qs.cached_time, GETDATE()), 0) AS [Calls/Minute], 
 qs.total_worker_time/qs.execution_count AS [AvgWorkerTime], 
 qs.total_worker_time AS [TotalWorkerTime],
-CASE WHEN CONVERT(nvarchar(max), qp.query_plan) LIKE N'%<MissingIndexes>%' THEN 1 ELSE 0 END AS [Has Missing Index],
+CASE WHEN CONVERT(nvarchar(max), qp.query_plan) COLLATE Latin1_General_BIN2 LIKE N'%<MissingIndexes>%' THEN 1 ELSE 0 END AS [Has Missing Index],
 FORMAT(qs.last_execution_time, 'yyyy-MM-dd HH:mm:ss', 'en-US') AS [Last Execution Time], 
 FORMAT(qs.cached_time, 'yyyy-MM-dd HH:mm:ss', 'en-US') AS [Plan Cached Time]
 -- ,qp.query_plan AS [Query Plan] -- Uncomment if you want the Query Plan
@@ -1430,7 +1430,7 @@ SELECT TOP(25) p.name AS [SP Name], qs.total_worker_time AS [TotalWorkerTime],
 qs.total_worker_time/qs.execution_count AS [AvgWorkerTime], qs.execution_count, 
 ISNULL(qs.execution_count/DATEDIFF(Minute, qs.cached_time, GETDATE()), 0) AS [Calls/Minute],
 qs.total_elapsed_time, qs.total_elapsed_time/qs.execution_count AS [avg_elapsed_time],
-CASE WHEN CONVERT(nvarchar(max), qp.query_plan) LIKE N'%<MissingIndexes>%' THEN 1 ELSE 0 END AS [Has Missing Index],
+CASE WHEN CONVERT(nvarchar(max), qp.query_plan) COLLATE Latin1_General_BIN2 LIKE N'%<MissingIndexes>%' THEN 1 ELSE 0 END AS [Has Missing Index],
 FORMAT(qs.last_execution_time, 'yyyy-MM-dd HH:mm:ss', 'en-US') AS [Last Execution Time], 
 FORMAT(qs.cached_time, 'yyyy-MM-dd HH:mm:ss', 'en-US') AS [Plan Cached Time]
 -- ,qp.query_plan AS [Query Plan] -- Uncomment if you want the Query Plan
@@ -1452,7 +1452,7 @@ SELECT TOP(25) p.name AS [SP Name], qs.total_logical_reads AS [TotalLogicalReads
 qs.total_logical_reads/qs.execution_count AS [AvgLogicalReads],qs.execution_count, 
 ISNULL(qs.execution_count/DATEDIFF(Minute, qs.cached_time, GETDATE()), 0) AS [Calls/Minute], 
 qs.total_elapsed_time, qs.total_elapsed_time/qs.execution_count AS [avg_elapsed_time],
-CASE WHEN CONVERT(nvarchar(max), qp.query_plan) LIKE N'%<MissingIndexes>%' THEN 1 ELSE 0 END AS [Has Missing Index], 
+CASE WHEN CONVERT(nvarchar(max), qp.query_plan) COLLATE Latin1_General_BIN2 LIKE N'%<MissingIndexes>%' THEN 1 ELSE 0 END AS [Has Missing Index],
 FORMAT(qs.last_execution_time, 'yyyy-MM-dd HH:mm:ss', 'en-US') AS [Last Execution Time], 
 FORMAT(qs.cached_time, 'yyyy-MM-dd HH:mm:ss', 'en-US') AS [Plan Cached Time]
 -- ,qp.query_plan AS [Query Plan] -- Uncomment if you want the Query Plan
@@ -1473,7 +1473,7 @@ ORDER BY qs.total_logical_reads DESC OPTION (RECOMPILE);
 SELECT TOP(25) p.name AS [SP Name],qs.total_physical_reads AS [TotalPhysicalReads], 
 qs.total_physical_reads/qs.execution_count AS [AvgPhysicalReads], qs.execution_count, 
 qs.total_logical_reads,qs.total_elapsed_time, qs.total_elapsed_time/qs.execution_count AS [avg_elapsed_time],
-CASE WHEN CONVERT(nvarchar(max), qp.query_plan) LIKE N'%<MissingIndexes>%' THEN 1 ELSE 0 END AS [Has Missing Index],
+CASE WHEN CONVERT(nvarchar(max), qp.query_plan) COLLATE Latin1_General_BIN2 LIKE N'%<MissingIndexes>%' THEN 1 ELSE 0 END AS [Has Missing Index],
 FORMAT(qs.last_execution_time, 'yyyy-MM-dd HH:mm:ss', 'en-US') AS [Last Execution Time], 
 FORMAT(qs.cached_time, 'yyyy-MM-dd HH:mm:ss', 'en-US') AS [Plan Cached Time]
 -- ,qp.query_plan AS [Query Plan] -- Uncomment if you want the Query Plan 
@@ -1497,7 +1497,7 @@ SELECT TOP(25) p.name AS [SP Name], qs.total_logical_writes AS [TotalLogicalWrit
 qs.total_logical_writes/qs.execution_count AS [AvgLogicalWrites], qs.execution_count,
 ISNULL(qs.execution_count/DATEDIFF(Minute, qs.cached_time, GETDATE()), 0) AS [Calls/Minute],
 qs.total_elapsed_time, qs.total_elapsed_time/qs.execution_count AS [avg_elapsed_time],
-CASE WHEN CONVERT(nvarchar(max), qp.query_plan) LIKE N'%<MissingIndexes>%' THEN 1 ELSE 0 END AS [Has Missing Index], 
+CASE WHEN CONVERT(nvarchar(max), qp.query_plan) COLLATE Latin1_General_BIN2 LIKE N'%<MissingIndexes>%' THEN 1 ELSE 0 END AS [Has Missing Index], 
 FORMAT(qs.last_execution_time, 'yyyy-MM-dd HH:mm:ss', 'en-US') AS [Last Execution Time], 
 FORMAT(qs.cached_time, 'yyyy-MM-dd HH:mm:ss', 'en-US') AS [Plan Cached Time]
 -- ,qp.query_plan AS [Query Plan] -- Uncomment if you want the Query Plan 
@@ -1561,15 +1561,19 @@ ORDER BY [Difference] DESC, [Total Writes] DESC, [Total Reads] ASC OPTION (RECOM
 
 
 -- Missing Indexes for current database by Index Advantage  (Query 66) (Missing Indexes)
-SELECT DISTINCT CONVERT(decimal(18,2), user_seeks * avg_total_user_cost * (avg_user_impact * 0.01)) AS [index_advantage], 
-migs.last_user_seek, mid.[statement] AS [Database.Schema.Table],
-mid.equality_columns, mid.inequality_columns, mid.included_columns,
-migs.unique_compiles, migs.user_seeks, migs.avg_total_user_cost, migs.avg_user_impact,
+SELECT CONVERT(decimal(18,2), migs.user_seeks * migs.avg_total_user_cost * (migs.avg_user_impact * 0.01)) AS [index_advantage], 
+FORMAT(migs.last_user_seek, 'yyyy-MM-dd HH:mm:ss') AS [last_user_seek], mid.[statement] AS [Database.Schema.Table], 
+COUNT(1) OVER(PARTITION BY mid.[statement]) AS [missing_indexes_for_table], 
+COUNT(1) OVER(PARTITION BY mid.[statement], mid.equality_columns) AS [similar_missing_indexes_for_table], 
+mid.equality_columns, mid.inequality_columns, mid.included_columns, migs.user_seeks, 
+CONVERT(decimal(18,2), migs.avg_total_user_cost) AS [avg_total_user_,cost], migs.avg_user_impact,
+REPLACE(REPLACE(LEFT(st.[text], 255), CHAR(10),''), CHAR(13),'') AS [Short Query Text],
 OBJECT_NAME(mid.[object_id]) AS [Table Name], p.rows AS [Table Rows]
-FROM sys.dm_db_missing_index_group_stats AS migs WITH (NOLOCK)
-INNER JOIN sys.dm_db_missing_index_groups AS mig WITH (NOLOCK)
-ON migs.group_handle = mig.index_group_handle
-INNER JOIN sys.dm_db_missing_index_details AS mid WITH (NOLOCK)
+FROM sys.dm_db_missing_index_groups AS mig WITH (NOLOCK) 
+INNER JOIN sys.dm_db_missing_index_group_stats_query AS migs WITH(NOLOCK) 
+ON mig.index_group_handle = migs.group_handle 
+CROSS APPLY sys.dm_exec_sql_text(migs.last_sql_handle) AS st 
+INNER JOIN sys.dm_db_missing_index_details AS mid WITH (NOLOCK) 
 ON mig.index_handle = mid.index_handle
 INNER JOIN sys.partitions AS p WITH (NOLOCK)
 ON p.[object_id] = mid.[object_id]
@@ -1581,12 +1585,13 @@ ORDER BY index_advantage DESC OPTION (RECOMPILE);
 -- Look at index advantage, last user seek time, number of user seeks to help determine source and importance
 -- SQL Server is overly eager to add included columns, so beware
 -- Do not just blindly add indexes that show up from this query!!!
+-- Håkan Winther has given me some great suggestions for this query
 
 
 -- Find missing index warnings for cached plans in the current database  (Query 67) (Missing Index Warnings)
 -- Note: This query could take some time on a busy instance
 SELECT TOP(25) OBJECT_NAME(objectid) AS [ObjectName], 
-               cp.objtype, cp.usecounts, cp.size_in_bytes, query_plan
+               cp.objtype, cp.usecounts, cp.size_in_bytes, qp.query_plan
 FROM sys.dm_exec_cached_plans AS cp WITH (NOLOCK)
 CROSS APPLY sys.dm_exec_query_plan(cp.plan_handle) AS qp
 WHERE CAST(query_plan AS NVARCHAR(MAX)) LIKE N'%MissingIndex%'
@@ -1627,7 +1632,7 @@ ORDER BY [BufferCount] DESC OPTION (RECOMPILE);
 
 -- Get Table names, row counts, and compression status for clustered index or heap  (Query 69) (Table Sizes)
 SELECT SCHEMA_NAME(o.Schema_ID) AS [Schema Name], OBJECT_NAME(p.object_id) AS [ObjectName], 
-SUM(p.Rows) AS [RowCount], data_compression_desc AS [CompressionType]
+SUM(p.Rows) AS [RowCount], p.data_compression_desc AS [Compression Type]
 FROM sys.partitions AS p WITH (NOLOCK)
 INNER JOIN sys.objects AS o WITH (NOLOCK)
 ON p.object_id = o.object_id
@@ -1965,7 +1970,10 @@ ORDER BY bs.backup_finish_date DESC OPTION (RECOMPILE);
 -- https://bit.ly/28Rpb2x
 
 
--- These five Pluralsight Courses go into more detail about how to run these queries and interpret the results
+-- These six Pluralsight Courses go into more detail about how to run these queries and interpret the results
+
+-- Azure SQL Database: Diagnosing Performance Issues with DMVs
+-- https://bit.ly/2meDRCN
 
 -- SQL Server 2017: Diagnosing Performance Issues with DMVs
 -- https://bit.ly/2FqCeti
@@ -1984,17 +1992,12 @@ ORDER BY bs.backup_finish_date DESC OPTION (RECOMPILE);
 
 
 
--- Sign up for Microsoft Visual Studio Dev Essentials and get a free three month pass to Pluralsight
 
 -- Microsoft Visual Studio Dev Essentials
--- http://bit.ly/1q6xbDL
+-- https://bit.ly/2qjNRxi
 
-
--- Sign up for Microsoft Azure Essentials and get lots of free Azure usage credits, MCP exam voucher, three month Pluralsight subscription
-
--- Microsoft Azure Essentials
--- https://bit.ly/2JMWe8x
-
+-- Microsoft Azure Learn
+-- https://bit.ly/2O0Hacc
 
 -- August 2017 blog series about upgrading and migrating to SQL Server 2016/2017
 -- https://bit.ly/2ftKVrX
