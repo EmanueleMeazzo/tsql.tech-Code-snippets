@@ -38,6 +38,7 @@ List of contents:
 
 * ## Notebooks
   - Jupyter Notebook to use with SQL Server and Azure Data Studio
+  - [The SQL Diagnostic (jupyter) Book](https://tsql.tech/the-sql-diagnostic-jupyter-book/)
 
 * ## PowerBI
   - Job Information - [A report to analyze the Agent Job performance, comes with companion procedure](https://tsql.tech/a-powerbi-report-for-sql-server-agent-jobs/)
@@ -46,6 +47,7 @@ List of contents:
 * ## PowerShell
   - Covert Notebook to HTML - Converts a Jupyter Notebook to HTML for easy export [Requires jupyter installed in the System]
   - Create Diagnostic Notebooks - Automatically creates Jupyter Notebooks from the Latest Glen Berry Diagnostic Queries
+  - Create FirstRespodersKit notebook - Automatically creates Jupyter Notebooks from the Latest FirstRespondersKit scripts
   - Export to CSV - A sample, simple, export SQL Table to CSV file using SQLServer Powershell Modules
   - PIP upgrade all packages - A simple way to upgrade all the installed Python packages using PIP
 
