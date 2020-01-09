@@ -102,3 +102,12 @@
   - title: Other Useful Scripts
     url: /tiger/tigeruseful
     not_numbered: true
+    
+- title: SQL Assessment API
+  url: /assessapi/SQLAssessmentAPITutorialNotebook
+  not_numbered: true
+  expand_sections: true
+  sections:
+  - title: QuickStart
+    url: /assessapi/SQLAssessmentAPIQuickStartNotebook
+    not_numbered: true

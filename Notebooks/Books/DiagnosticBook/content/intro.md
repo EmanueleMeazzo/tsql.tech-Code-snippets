@@ -9,3 +9,4 @@ This will always be a WIP, to submit ideas, useful scripts to include or general
 - [Glenn Berry personal Blog](https://glennsqlperformance.com/resources/ "Glenn Berry personal Blog")
 - [FirstRespondersKit GitHub repository](https://github.com/BrentOzarULTD/SQL-Server-First-Responder-Kit "FirstRespondersKit GitHub repository")
 - [Tiger Team GitHub repository](https://github.com/microsoft/tigertoolbox "Tiger Team GitHub repository")
+- [SQL Assesment API](https://github.com/microsoft/sql-server-samples/tree/master/samples/manage/sql-assessment-api "SQL Assesment API")
