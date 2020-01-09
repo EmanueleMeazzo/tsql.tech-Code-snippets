@@ -8,7 +8,8 @@ List of contents:
   - Find Long Running Queries in PlanCache
   - Find Most Expensive Queries in PlanCache
   - Find Plans of your query in PlanCache
-  - Find implicit Conversion Queries in PlanCache.
+  - Find implicit Conversion Queries in PlanCache
+  - Measure IO Latency and Throughput in a period of time
   - Index Usage Statis
   - LatchesStats
   - SpinlockStats
