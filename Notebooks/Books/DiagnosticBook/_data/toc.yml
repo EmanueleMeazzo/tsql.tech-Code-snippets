@@ -71,7 +71,11 @@
     not_numbered: true
   - title: SQL Server 2016
     url: /glenn/SQL Server 2016 Diagnostic Information Queries
+  - title: SQL Server 2016 SP1
+    url: /glenn/SQL Server 2016 SP1 Diagnostic Information Queries
     not_numbered: true
+  - title: SQL Server 2016 SP2
+    url: /glenn/SQL Server 2016 SP2 Diagnostic Information Queries
   - title: SQL Server 2017
     url: /glenn/SQL Server 2017 Diagnostic Information Queries
     not_numbered: true
