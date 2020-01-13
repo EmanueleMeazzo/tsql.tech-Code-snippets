@@ -1,15 +1,13 @@
 
 -- SQL Server 2016 SP2 Diagnostic Information Queries
 -- Glenn Berry 
--- Last Modified: December 10, 2019
--- https://www.sqlskills.com/blogs/glenn/
--- http://sqlserverperformance.wordpress.com/
+-- Last Modified: January 1, 2020
+-- https://glennsqlperformance.com/
+-- https://sqlserverperformance.wordpress.com/
 -- Twitter: GlennAlanBerry
 
 -- Please listen to my Pluralsight courses
 -- https://www.pluralsight.com/author/glenn-berry
-
--- If you want to find all of our SQLskills SQL101 blog posts, check out https://bit.ly/2qLwfXW
 
 
 -- Please make sure you are using the correct version of these diagnostic queries for your version of SQL Server
@@ -23,11 +21,9 @@
 
 
 --******************************************************************************
---*   Copyright (C) 2019 Glenn Berry, SQLskills.com
+--*   Copyright (C) 2020 Glenn Berry
 --*   All rights reserved. 
 --*
---*   For more scripts and sample code, check out 
---*      https://www.sqlskills.com/blogs/glenn
 --*
 --*   You may alter this code for your own *non-commercial* purposes. You may
 --*   republish altered code as long as you include this copyright and give due credit. 
@@ -378,7 +374,8 @@ WHERE node_state_desc <> N'ONLINE DAC' OPTION (RECOMPILE);
 -- Good basic information about OS memory amounts and state  (Query 13) (System Memory)
 SELECT total_physical_memory_kb/1024 AS [Physical Memory (MB)], 
        available_physical_memory_kb/1024 AS [Available Memory (MB)], 
-       total_page_file_kb/1024 AS [Total Page File (MB)], 
+       total_page_file_kb/1024 AS [Page File Commit Limit (MB)],
+	   total_page_file_kb/1024 - total_physical_memory_kb/1024 AS [Physical Page File Size (MB)],
 	   available_page_file_kb/1024 AS [Available Page File (MB)], 
 	   system_cache_kb/1024 AS [System Cache (MB)],
        system_memory_state_desc AS [System Memory State]

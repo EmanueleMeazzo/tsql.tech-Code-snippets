@@ -1,24 +1,26 @@
 
 -- Azure SQL Database Diagnostic Information Queries
 -- Glenn Berry 
--- Last Modified: December 4, 2019
--- https://www.sqlskills.com/blogs/glenn/
--- http://sqlserverperformance.wordpress.com/
+-- Last Modified: January 1, 2020
+-- https://glennsqlperformance.com/
+-- https://sqlserverperformance.wordpress.com/
 -- Twitter: GlennAlanBerry
 
 -- Please listen to my Pluralsight courses
 -- https://www.pluralsight.com/author/glenn-berry
 
--- If you want to find all of our SQLskills SQL101 blog posts, check out https://www.sqlskills.com/help/sql101/
 
+-- If you like PowerShell, there is a very useful community solution for running these queries in an automated fashion
+-- https://dbatools.io/
+
+-- Invoke-DbaDiagnosticQuery
+-- https://dbatools.io/functions/invoke-dbadiagnosticquery/
 
 
 --******************************************************************************
---*   Copyright (C) 2019 Glenn Berry, SQLskills.com
+--*   Copyright (C) 2020 Glenn Berry
 --*   All rights reserved. 
 --*
---*   For more scripts and sample code, check out 
---*      https://www.sqlskills.com/blogs/glenn
 --*
 --*   You may alter this code for your own *non-commercial* purposes. You may
 --*   republish altered code as long as you include this copyright and give due credit. 
