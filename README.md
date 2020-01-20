@@ -72,6 +72,7 @@ List of contents:
   - Read TransactionLog User Actions [HOW TO FIND A SAFE RESTORE POINT (AND WHO MESSED UP) BY READING FROM THE TRANSACTION LOG](https://tsql.tech/find-who-e-when-something-was-messed-up-in-order-to-restore-to-a-safe-point-using-the-transaction-log/)
   - TempDB Page Contention
   - sp_whoisactive_find_longrunning_blocked_query
+  - Tests the current database against its check constraints and reports any data that would fail a check were it enabled
   
 * ## Views
   - BlitzCache_MissingIndexesView - Filters the BlitzCache historic table for misssing indexes reports
