@@ -95,6 +95,39 @@
     url: /firstresp/samples
     not_numbered: true
     
+- title: sp_whoisactive
+  url: /whoisactive/INSTALL
+  not_numbered: true
+  expand_sections: false
+  sections:
+  - title: Background
+    url: /whoisactive/01_Background
+    not_numbered: false
+  - title: Installation
+    url: /whoisactive/02_Installation
+    not_numbered: false
+  - title: Less is More
+    url: /whoisactive/03_LessIsMore
+    not_numbered: false
+  - title: Options
+    url: /whoisactive/04_Options
+    not_numbered: false
+  - title: Default Columns
+    url: /whoisactive/06_DefaultColumns
+    not_numbered: false
+  - title: Active Request, Sleeping Session
+    url: /whoisactive/07_ActiveSleeping
+    not_numbered: false
+  - title: Deciding What (Not) To See
+    url: /whoisactive/08_DecideWhatToSee
+    not_numbered: false
+  - title: Commands, Batches, and the Mysteries of Text
+    url: /whoisactive/09_Commands
+    not_numbered: false
+  - title: Options
+    url: /whoisactive/04_Options
+    not_numbered: false
+    
 - title: Tiger Toolbox
   url: /tiger/readme
   not_numbered: true
