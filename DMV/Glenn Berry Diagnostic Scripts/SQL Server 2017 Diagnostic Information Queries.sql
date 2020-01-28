@@ -1,7 +1,7 @@
 
 -- SQL Server 2017 Diagnostic Information Queries
 -- Glenn Berry 
--- Last Modified: January 1, 2020
+-- Last Modified: January 22, 2020
 -- https://glennsqlperformance.com/
 -- https://sqlserverperformance.wordpress.com/
 -- Twitter: GlennAlanBerry
@@ -214,7 +214,7 @@ DBCC TRACESTATUS (-1);
 --           https://bit.ly/2sboMli (added in CU12)
 
 -- TF 3226 - Supresses logging of successful database backup messages to the SQL Server Error Log
---           https://bit.ly/2p6MTjS  
+--           https://bit.ly/38zDNAK  
 
 -- TF 6534 - Enables use of native code to improve performance with spatial data
 --           https://bit.ly/2HrQUpU         
@@ -323,6 +323,9 @@ ORDER BY sj.name OPTION (RECOMPILE);
 -- SQL Server Maintenance Solution
 -- https://bit.ly/1pgchQu  
 
+-- You can use this script to add default schedules to the standard Ola Hallengren Maintenance Solution jobs
+-- https://bit.ly/3ane0gN
+
 
 -- Get SQL Server Agent Alert Information (Query 10) (SQL Server Agent Alerts)
 SELECT name, event_source, message_id, severity, [enabled], has_notification, 
@@ -333,7 +336,7 @@ ORDER BY name OPTION (RECOMPILE);
 
 -- Gives you some basic information about your SQL Server Agent Alerts 
 -- (which are different from SQL Server Agent jobs)
--- Read more about Agent Alerts here: https://bit.ly/2Giz0Xf 
+-- Read more about Agent Alerts here: https://bit.ly/2v5YR37
 
 
 
@@ -1009,7 +1012,7 @@ OPTION (RECOMPILE);
 
 -- Cumulative wait stats are not as useful on an idle instance that is not under load or performance pressure
 
--- SQL Server Wait Types Library (Paul Randal)
+-- SQL Server Wait Types Library
 -- https://bit.ly/2ePzYO2
 
 -- The SQL Server Wait Type Repository
@@ -1061,7 +1064,7 @@ WHERE scheduler_id < 255 OPTION (RECOMPILE);
 -- High Avg Pending DiskIO Counts are a sign of disk pressure
 
 -- How to Do Some Very Basic SQL Server Monitoring
--- https://bit.ly/2q3Btgt
+-- https://bit.ly/30IRla0
 
 
 
