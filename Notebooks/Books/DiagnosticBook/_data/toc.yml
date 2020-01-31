@@ -127,7 +127,21 @@
   - title: Options
     url: /whoisactive/04_Options
     not_numbered: false
+
+- title: SQL Assessment API
+  url: /assessapi/SQLAssessmentAPITutorialNotebook
+  not_numbered: true
+  expand_sections: true
+  sections:
+  - title: QuickStart
+    url: /assessapi/SQLAssessmentAPIQuickStartNotebook
+    not_numbered: true
     
+- title: sp_pressure_detector
+  url: /erik/sp_pressure_detector
+  not_numbered: true
+  expand_sections: false    
+
 - title: Tiger Toolbox
   url: /tiger/readme
   not_numbered: true
@@ -140,11 +154,3 @@
     url: /tiger/tigeruseful
     not_numbered: true
     
-- title: SQL Assessment API
-  url: /assessapi/SQLAssessmentAPITutorialNotebook
-  not_numbered: true
-  expand_sections: true
-  sections:
-  - title: QuickStart
-    url: /assessapi/SQLAssessmentAPIQuickStartNotebook
-    not_numbered: true
