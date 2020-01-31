@@ -37,6 +37,7 @@ List of contents:
   - Rebuild Fragmented Heaps
   - Truncate All Transaction Log
   - VLF_Shrink
+  - Add SQL Server Agent Alerts
 
 * ## Notebooks
   - Jupyter Notebook to use with SQL Server and Azure Data Studio
