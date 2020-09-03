@@ -1,14 +1,14 @@
 
 -- SQL Server 2017 Diagnostic Information Queries
 -- Glenn Berry 
--- Last Modified: August 2, 2020
+-- Last Modified: September 2, 2020
 -- https://glennsqlperformance.com/
 -- https://sqlserverperformance.wordpress.com/
 -- YouTube: https://bit.ly/2PkoAM1 
 -- Twitter: GlennAlanBerry
 
--- Please listen to my Pluralsight courses
--- https://www.pluralsight.com/author/glenn-berry
+-- Diagnostic Queries are available here
+-- https://glennsqlperformance.com/resources/
 
 
 -- Please make sure you are using the correct version of these diagnostic queries for your version of SQL Server
@@ -286,11 +286,16 @@ FROM sys.dm_server_services WITH (NOLOCK) OPTION (RECOMPILE);
 SELECT ISNULL(d.[name], bs.[database_name]) AS [Database], d.recovery_model_desc AS [Recovery Model], 
        d.log_reuse_wait_desc AS [Log Reuse Wait Desc],
     MAX(CASE WHEN [type] = 'D' THEN bs.backup_finish_date ELSE NULL END) AS [Last Full Backup],
+	MAX(CASE WHEN [type] = 'D' THEN bmf.physical_device_name ELSE NULL END) AS [Last Full Backup Location],
     MAX(CASE WHEN [type] = 'I' THEN bs.backup_finish_date ELSE NULL END) AS [Last Differential Backup],
-    MAX(CASE WHEN [type] = 'L' THEN bs.backup_finish_date ELSE NULL END) AS [Last Log Backup]
+	MAX(CASE WHEN [type] = 'I' THEN bmf.physical_device_name ELSE NULL END) AS [Last Differential Backup Location],
+    MAX(CASE WHEN [type] = 'L' THEN bs.backup_finish_date ELSE NULL END) AS [Last Log Backup],
+	MAX(CASE WHEN [type] = 'L' THEN bmf.physical_device_name ELSE NULL END) AS [Last Log Backup Location]
 FROM sys.databases AS d WITH (NOLOCK)
 LEFT OUTER JOIN msdb.dbo.backupset AS bs WITH (NOLOCK)
-ON bs.[database_name] = d.[name] 
+ON bs.[database_name] = d.[name]
+LEFT OUTER JOIN msdb.dbo.backupmediafamily AS bmf WITH (NOLOCK)
+ON bs.media_set_id = bmf.media_set_id 
 AND bs.backup_finish_date > GETDATE()- 30
 WHERE d.name <> N'tempdb'
 GROUP BY ISNULL(d.[name], bs.[database_name]), d.recovery_model_desc, d.log_reuse_wait_desc, d.[name] 
@@ -615,7 +620,11 @@ CONVERT(DECIMAL(18,2), free_space_in_bytes/1073741824.0) AS [Available Space (GB
 FROM sys.dm_os_enumerate_fixed_drives WITH (NOLOCK) OPTION (RECOMPILE);
 ------
 
--- This shows all of your fixed drives, not just LUNs with SQL Server database files
+-- This shows all of your drives, not just LUNs with SQL Server database files
+-- New in SQL Server 2017
+
+-- sys.dm_os_enumerate_fixed_drives (Transact-SQL)
+-- https://bit.ly/2EZoHLj
 
 
 
