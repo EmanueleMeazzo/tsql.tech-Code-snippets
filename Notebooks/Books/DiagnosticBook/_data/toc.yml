@@ -100,32 +100,89 @@
   not_numbered: true
   expand_sections: false
   sections:
-  - title: Background
-    url: /whoisactive/01_Background
+  - title: A Brief History of Activity Monitoring
+    url: /whoisactive/01_background
     not_numbered: false
-  - title: Installation
-    url: /whoisactive/02_Installation
+  - title: Design Philosophy
+    url: /whoisactive/02_design
     not_numbered: false
-  - title: Less is More
-    url: /whoisactive/03_LessIsMore
+  - title: The License
+    url: /whoisactive/03_license
+    not_numbered: false
+  - title: Installing sp_whoisactive
+    url: /whoisactive/04_installation
+    not_numbered: false
+  - title: Less Data is More Data
+    url: /whoisactive/05_lessdata
     not_numbered: false
   - title: Options
-    url: /whoisactive/04_Options
+    url: /whoisactive/06_options
     not_numbered: false
   - title: Default Columns
-    url: /whoisactive/06_DefaultColumns
+    url: /whoisactive/07_default
     not_numbered: false
   - title: Active Request, Sleeping Session
-    url: /whoisactive/07_ActiveSleeping
+    url: /whoisactive/08_requests
     not_numbered: false
   - title: Deciding What (Not) To See
-    url: /whoisactive/08_DecideWhatToSee
+    url: /whoisactive/09_deciding
     not_numbered: false
   - title: Commands, Batches, and the Mysteries of Text
-    url: /whoisactive/09_Commands
+    url: /whoisactive/10_commands
     not_numbered: false
-  - title: Options
-    url: /whoisactive/04_Options
+  - title: Planning for Success
+    url: /whoisactive/11_planning
+    not_numbered: false
+  - title: The Almighty Transaction
+    url: /whoisactive/12_transaction
+    not_numbered: false
+  - title: How Queries Are Processed
+    url: /whoisactive/13_queries
+    not_numbered: false
+  - title: Blocking, Blockers, and Other B Words
+    url: /whoisactive/14_blockers
+    not_numbered: false
+  - title: Seeing the Wait That Matters Most
+    url: /whoisactive/15_waits
+    not_numbered: false
+  - title: Seeing All of the Waits
+    url: /whoisactive/16_morewaits
+    not_numbered: false
+  - title: Is This Normal?
+    url: /whoisactive/17_normal
+    not_numbered: false
+  - title: Getting More Information
+    url: /whoisactive/18_moreinfo
+    not_numbered: false
+  - title: Why Am I Blocked?
+    url: /whoisactive/19_whyblocked
+    not_numbered: false
+  - title: The Node Knows
+    url: /whoisactive/20_node
+    not_numbered: false
+  - title: Analyzing Tempdb Contention
+    url: /whoisactive/21_tempdb
+    not_numbered: false
+  - title: The Key to Your Locks
+    url: /whoisactive/22_locks
+    not_numbered: false
+  - title: Leader of the Block
+    url: /whoisactive/23_leader
+    not_numbered: false
+  - title: The Output of Your Dreams
+    url: /whoisactive/24_output
+    not_numbered: false
+  - title: Capturing the Output
+    url: /whoisactive/25_capturing
+    not_numbered: false
+  - title: Delta Force
+    url: /whoisactive/26_delta
+    not_numbered: false
+  - title: Who is Active's Hidden Gems
+    url: /whoisactive/27_gems
+    not_numbered: false
+  - title: Access for All!
+    url: /whoisactive/28_access
     not_numbered: false
 
 - title: SQL Assessment API
