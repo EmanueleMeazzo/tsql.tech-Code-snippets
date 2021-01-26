@@ -38,6 +38,7 @@ List of contents:
   - Truncate All Transaction Log
   - VLF_Shrink
   - Add SQL Server Agent Alerts
+  - Track progress of Index (re)creation
 
 * ## Notebooks
   - Jupyter Notebook to use with SQL Server and Azure Data Studio
