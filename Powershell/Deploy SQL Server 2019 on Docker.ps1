@@ -10,4 +10,5 @@ docker run `
 -p 1433:1433 `
 -e "ACCEPT_EULA=Y" `
 -e "SA_PASSWORD=This is a password,ok?" `
+-e "MSSQL_AGENT_ENABLED=True" `
 -d mcr.microsoft.com/mssql/server:2019-latest
