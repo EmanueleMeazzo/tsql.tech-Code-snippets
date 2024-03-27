@@ -12,8 +12,8 @@ With this script you go in and actually check the contents of the table to assig
 
 SET NOCOUNT ON;
 
-DECLARE @table_name SYSNAME = 'CreditMemoGL_initialSetup';
-DECLARE @schema_name SYSNAME = 'CPYOU';
+DECLARE @table_name SYSNAME = 'yourtable';
+DECLARE @schema_name SYSNAME = 'dbo';
 
 DROP TABLE IF EXISTS #COLS;
 
