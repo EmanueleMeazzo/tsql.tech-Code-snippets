@@ -68,7 +68,7 @@ WHILE @@FETCH_STATUS = 0 BEGIN
 			'SELECT ''' + @column_name + ''' AS COLUMN_NAME, ''###'' AS DATA_TYPE, IIF(X.TESTING = y.BASELINE, 1, 0) AS COMPATIBLE, y.MAX_LEN, y.MIN_LEN, SAMPLE
 			FROM (SELECT COUNT(*) TESTING FROM ' + QUOTENAME(@schema_name) + N'.' + QUOTENAME(@table_name) + N' WHERE TRY_CONVERT(###,' + QUOTENAME(@column_name) + N') IS NOT NULL) X
 			CROSS APPLY (SELECT COUNT(*) BASELINE, MAX(LEN(' + QUOTENAME(@column_name) + N')) MAX_LEN, MIN(LEN(' + QUOTENAME(@column_name) + N')) MIN_LEN 
-			FROM ' + QUOTENAME(@schema_name) + N'.' + QUOTENAME(@table_name) + N') y
+			FROM ' + QUOTENAME(@schema_name) + N'.' + QUOTENAME(@table_name) + N' WHERE ' + QUOTENAME(@column_name) + N' IS NOT NULL) y
 			CROSS APPLY (SELECT STRING_AGG(SAMPLED,'','') SAMPLE FROM (SELECT TOP 5 ' + QUOTENAME(@column_name) + N' AS SAMPLED FROM ' + QUOTENAME(@schema_name) + N'.' + QUOTENAME(@table_name) + N') k) s'
 
 			--Types to check
